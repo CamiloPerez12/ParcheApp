@@ -2,11 +2,13 @@ package com.jcpd.parcheapp.navigation
 
 import androidx.compose.runtime.Composable
 import androidx.navigation.NavType
-import androidx.navigation.compose.*
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.jcpd.feature_chat.presentation.chat.ChatScreen
-import com.jcpd.feature_home.presentation.home.HomeScreen
 import com.jcpd.feature_event_detail.presentation.detail.EventDetailScreen
+import com.jcpd.feature_home.presentation.home.HomeScreen
 import com.jcpd.feature_profile.presentation.profile.ProfileScreen
 
 @Composable
@@ -19,7 +21,6 @@ fun MainNavHost(
         navController = navController,
         startDestination = startDestination
     ) {
-
         composable(Routes.HOME) {
             HomeScreen(
                 onEventClick = { eventId ->
@@ -35,6 +36,7 @@ fun MainNavHost(
                 onFilterClick = {
                 },
                 onMapClick = {
+                    navController.navigate(Routes.MAP)
                 }
             )
         }
@@ -58,9 +60,9 @@ fun MainNavHost(
 
         composable(
             route = Routes.CHAT_WITH_ARG,
-            arguments = listOf(navArgument("eventId") {
-                type = NavType.StringType
-            })
+            arguments = listOf(
+                navArgument("eventId") { type = NavType.StringType }
+            )
         ) {
             val eventId = it.arguments?.getString("eventId").orEmpty()
 
@@ -72,6 +74,12 @@ fun MainNavHost(
 
         composable(Routes.PROFILE) {
             ProfileScreen(
+                onBack = { navController.popBackStack() }
+            )
+        }
+
+        composable(Routes.MAP) {
+            MapScreen(
                 onBack = { navController.popBackStack() }
             )
         }
