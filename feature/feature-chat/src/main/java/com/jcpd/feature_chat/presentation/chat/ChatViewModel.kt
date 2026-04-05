@@ -7,7 +7,9 @@ import com.jcpd.feature_chat.domain.usecase.GetMessagesUseCase
 import com.jcpd.feature_chat.domain.usecase.SendMessageUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
-import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
 @HiltViewModel
@@ -28,11 +30,25 @@ class ChatViewModel @Inject constructor(
 
     private fun loadMessages() {
         viewModelScope.launch {
-            val msgs = getMessages(eventId)
-            _uiState.value = ChatUiState(
-                isLoading = false,
-                messages = msgs
+            _uiState.value = _uiState.value.copy(
+                isLoading = true,
+                errorMessage = null
             )
+
+            runCatching {
+                getMessages(eventId)
+            }.onSuccess { msgs ->
+                _uiState.value = _uiState.value.copy(
+                    isLoading = false,
+                    messages = msgs,
+                    errorMessage = null
+                )
+            }.onFailure {
+                _uiState.value = _uiState.value.copy(
+                    isLoading = false,
+                    errorMessage = "No se pudieron cargar los mensajes"
+                )
+            }
         }
     }
 
@@ -41,13 +57,31 @@ class ChatViewModel @Inject constructor(
     }
 
     fun send() {
-        val text = _uiState.value.inputText
-        if (text.isBlank()) return
+        val text = _uiState.value.inputText.trim()
+        if (text.isBlank() || _uiState.value.isSending) return
 
         viewModelScope.launch {
-            sendMessage(eventId, text)
-            loadMessages()
-            _uiState.value = _uiState.value.copy(inputText = "")
+            _uiState.value = _uiState.value.copy(
+                isSending = true,
+                errorMessage = null
+            )
+
+            runCatching {
+                sendMessage(eventId, text)
+                getMessages(eventId)
+            }.onSuccess { msgs ->
+                _uiState.value = _uiState.value.copy(
+                    isSending = false,
+                    inputText = "",
+                    messages = msgs,
+                    errorMessage = null
+                )
+            }.onFailure {
+                _uiState.value = _uiState.value.copy(
+                    isSending = false,
+                    errorMessage = "No se pudo enviar el mensaje"
+                )
+            }
         }
     }
 }

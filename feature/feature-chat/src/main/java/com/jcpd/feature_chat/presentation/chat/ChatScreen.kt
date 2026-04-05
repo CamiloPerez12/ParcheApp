@@ -13,6 +13,8 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -23,7 +25,9 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.jcpd.core_ui.theme.ParcheChatBackground
 import com.jcpd.core_ui.theme.ParcheThemeTokens
+import com.jcpd.core_ui.theme.TextMuted
 import com.jcpd.feature_chat.R
+import com.jcpd.feature_chat.presentation.chat.components.ChatEventBanner
 import com.jcpd.feature_chat.presentation.chat.components.ChatHeader
 import com.jcpd.feature_chat.presentation.chat.components.ChatInputBar
 import com.jcpd.feature_chat.presentation.chat.components.MessageBubble
@@ -70,22 +74,42 @@ fun ChatScreen(
                     onBack = onBack
                 )
 
-                LazyColumn(
-                    state = listState,
+                Column(
                     modifier = Modifier
                         .weight(1f)
-                        .fillMaxSize(),
-                    contentPadding = PaddingValues(
-                        horizontal = spacing.lg,
-                        vertical = spacing.lg
-                    ),
-                    verticalArrangement = Arrangement.spacedBy(spacing.md)
+                        .fillMaxSize()
+                        .padding(horizontal = spacing.lg)
                 ) {
-                    items(
-                        items = uiState.messages,
-                        key = { it.id }
-                    ) { message ->
-                        MessageBubble(message = message)
+                    ChatEventBanner(
+                        title = uiState.eventTitle,
+                        subtitle = uiState.eventSubtitle,
+                        modifier = Modifier.padding(top = spacing.lg)
+                    )
+
+                    if (uiState.errorMessage != null) {
+                        Text(
+                            text = uiState.errorMessage.orEmpty(),
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = TextMuted,
+                            modifier = Modifier.padding(top = spacing.md)
+                        )
+                    }
+
+                    LazyColumn(
+                        state = listState,
+                        modifier = Modifier
+                            .weight(1f)
+                            .fillMaxSize()
+                            .padding(top = spacing.lg),
+                        contentPadding = PaddingValues(bottom = spacing.md),
+                        verticalArrangement = Arrangement.spacedBy(spacing.md)
+                    ) {
+                        items(
+                            items = uiState.messages,
+                            key = { it.id }
+                        ) { message ->
+                            MessageBubble(message = message)
+                        }
                     }
                 }
 
@@ -94,6 +118,7 @@ fun ChatScreen(
                     onValueChange = viewModel::onMessageChange,
                     onSendClick = viewModel::send,
                     placeholder = stringResource(R.string.chat_input_placeholder),
+                    isSending = uiState.isSending,
                     modifier = Modifier
                         .navigationBarsPadding()
                         .padding(

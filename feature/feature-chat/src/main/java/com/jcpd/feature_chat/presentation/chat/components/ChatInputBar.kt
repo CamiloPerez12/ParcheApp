@@ -37,9 +37,11 @@ fun ChatInputBar(
     onValueChange: (String) -> Unit,
     onSendClick: () -> Unit,
     placeholder: String,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    isSending: Boolean = false
 ) {
     val spacing = ParcheThemeTokens.spacing
+    val isSendEnabled = value.isNotBlank() && !isSending
 
     Surface(
         modifier = modifier
@@ -90,17 +92,18 @@ fun ChatInputBar(
                     focusedTextColor = TextPrimary,
                     unfocusedTextColor = TextPrimary
                 ),
-                maxLines = 4
+                maxLines = 4,
+                enabled = !isSending
             )
 
             IconButton(
                 onClick = onSendClick,
-                enabled = value.isNotBlank()
+                enabled = isSendEnabled
             ) {
                 Icon(
                     imageVector = Icons.Outlined.Send,
                     contentDescription = null,
-                    tint = if (value.isNotBlank()) ParcheGreen else Gray300
+                    tint = if (isSendEnabled) ParcheGreen else Gray300
                 )
             }
         }
