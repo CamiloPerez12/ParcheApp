@@ -7,6 +7,7 @@ object Routes {
     const val CHAT = "chat"
     const val MAP = "map"
     const val SEARCH = "search"
+    const val FILTER = "filter"
 
     const val EVENT_DETAIL_WITH_ARG = "event_detail/{eventId}"
     const val CHAT_WITH_ARG = "chat/{eventId}"
