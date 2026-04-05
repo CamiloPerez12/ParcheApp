@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="event_detail_title">Event detail</string>
+    <string name="event_detail_join">Join</string>
+    <string name="event_detail_joined">Joined</string>
+    <string name="event_detail_full">Full</string>
+    <string name="event_detail_open_chat">Open chat</string>
+
+    <string name="event_detail_organizer_section">Organizer</string>
+    <string name="event_detail_participants_section">Participants</string>
+    <string name="event_detail_location_section">Location</string>
+    <string name="event_detail_details_section">Details</string>
+
+    <string name="event_detail_error_generic">Something went wrong</string>
+    <string name="event_detail_error_refresh">Could not refresh event detail</string>
+    <string name="event_detail_retry">Retry</string>
+</resources>

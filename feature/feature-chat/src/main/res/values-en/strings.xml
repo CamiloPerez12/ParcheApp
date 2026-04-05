@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="chat_title">Chat</string>
+    <string name="chat_subtitle">Event coordination</string>
+    <string name="chat_input_placeholder">Write a message ...</string>
+    <string name="chat_send">Send</string>
+</resources>

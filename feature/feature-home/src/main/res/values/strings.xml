@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="event_join">Unirse</string>
+    <string name="event_joined">Ya te uniste</string>
+    <string name="event_full">Completo</string>
+
+    <string name="event_players_format">%1$d/%2$d jugadores</string>
+    <string name="event_distance_km">%1$s km</string>
+
+    <plurals name="event_remaining_spots">
+        <item quantity="one">%d cupo restante</item>
+        <item quantity="other">%d cupos restantes</item>
+    </plurals>
+    <string name="home_greeting_afternoon">Buenas tardes</string>
+    <string name="home_title">¿Qué parche hacemos hoy?</string>
+    <string name="home_search_placeholder">Buscar partidos, lugares...</string>
+    <string name="home_map_shortcut">Ver mapa</string>
+    <string name="home_error_generic">Ocurrió un error inesperado</string>
+    <string name="home_error_refresh">No se pudo actualizar la información</string>
+    <string name="category_futbol">Fútbol</string>
+    <string name="category_tenis">Tenis</string>
+    <string name="category_basket">Basket</string>
+    <string name="category_social">Social</string>
+    <string name="home_retry">Reintentar</string>
+    <string name="home_empty_title">No hay actividades cerca</string>
+    <string name="home_empty_subtitle">Prueba otro filtro o revisa el mapa.</string>
+    <string name="home_nearby_events_title">Partidos cerca</string>
+</resources>

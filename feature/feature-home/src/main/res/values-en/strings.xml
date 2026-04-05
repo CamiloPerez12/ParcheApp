@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="event_join">Join</string>
+    <string name="event_joined">Joined</string>
+    <string name="event_full">Full</string>
+
+    <string name="event_players_format">%1$d/%2$d players</string>
+    <string name="event_distance_km">%1$s km</string>
+
+    <plurals name="event_remaining_spots">
+        <item quantity="one">%d spot left</item>
+        <item quantity="other">%d spots left</item>
+    </plurals>
+    <string name="home_greeting_afternoon">Good afternoon</string>
+    <string name="home_title">What are we doing today?</string>
+    <string name="home_search_placeholder">Search matches, places...</string>
+    <string name="home_map_shortcut">View map</string>
+    <string name="home_error_generic">Something went wrong</string>
+    <string name="home_error_refresh">Could not refresh the information</string>
+    <string name="category_futbol">Soccer</string>
+    <string name="category_tenis">Tennis</string>
+    <string name="category_basket">Basketball</string>
+    <string name="category_social">Social</string>
+    <string name="home_retry">Retry</string>
+    <string name="home_empty_title">No activities nearby</string>
+    <string name="home_empty_subtitle">Try another filter or check the map.</string>
+    <string name="home_nearby_events_title">Nearby matches</string>
+</resources>
