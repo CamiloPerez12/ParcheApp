@@ -70,7 +70,6 @@ fun ChatScreen(
             ) {
                 ChatHeader(
                     title = stringResource(R.string.chat_title),
-                    subtitle = stringResource(R.string.chat_subtitle),
                     onBack = onBack
                 )
 
