@@ -17,6 +17,7 @@ data class HomeUiState(
     val categories: List<HomeCategoryUi> = emptyList(),
     val selectedCategoryId: String? = null,
 
+    val allEvents: List<HomeEventUi> = emptyList(),
     val events: List<HomeEventUi> = emptyList(),
 
     val showMapShortcut: Boolean = true,

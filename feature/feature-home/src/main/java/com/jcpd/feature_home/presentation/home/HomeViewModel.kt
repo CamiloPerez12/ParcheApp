@@ -2,6 +2,7 @@ package com.jcpd.feature_home.presentation.home
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.jcpd.core_ui.components.EventSportType
 import com.jcpd.feature_home.R
 import com.jcpd.feature_home.domain.model.HomeEvent
 import com.jcpd.feature_home.domain.usecase.GetHomeQuickStatsUseCase
@@ -38,12 +39,15 @@ class HomeViewModel @Inject constructor(
             runCatching {
                 val location = getSelectedLocationUseCase()
                 val stats = getHomeQuickStatsUseCase()
-                val events = getNearbyEventsUseCase()
+                val events = getNearbyEventsUseCase().map { it.toUi() }
+
+                val defaultSelectedCategory = "all"
+                val filteredEvents = filterEvents(events, defaultSelectedCategory)
 
                 HomeUiState(
                     isLoading = false,
                     isRefreshing = false,
-                    isEmpty = events.isEmpty(),
+                    isEmpty = filteredEvents.isEmpty(),
                     errorMessageRes = null,
                     greetingRes = R.string.home_greeting_afternoon,
                     titleRes = R.string.home_title,
@@ -57,9 +61,10 @@ class HomeViewModel @Inject constructor(
                             label = it.label
                         )
                     },
-                    categories = defaultCategories(),
-                    selectedCategoryId = "futbol",
-                    events = events.map { it.toUi() },
+                    categories = defaultCategories(selectedCategoryId = defaultSelectedCategory),
+                    selectedCategoryId = defaultSelectedCategory,
+                    allEvents = events,
+                    events = filteredEvents,
                     showMapShortcut = true,
                     mapShortcutLabelRes = R.string.home_map_shortcut
                 )
@@ -84,12 +89,16 @@ class HomeViewModel @Inject constructor(
             )
 
             runCatching {
-                getNearbyEventsUseCase()
+                getNearbyEventsUseCase().map { it.toUi() }
             }.onSuccess { events ->
+                val selectedCategory = _uiState.value.selectedCategoryId ?: "all"
+                val filteredEvents = filterEvents(events, selectedCategory)
+
                 _uiState.value = _uiState.value.copy(
                     isRefreshing = false,
-                    isEmpty = events.isEmpty(),
-                    events = events.map { it.toUi() }
+                    allEvents = events,
+                    events = filteredEvents,
+                    isEmpty = filteredEvents.isEmpty()
                 )
             }.onFailure {
                 _uiState.value = _uiState.value.copy(
@@ -101,36 +110,59 @@ class HomeViewModel @Inject constructor(
     }
 
     fun onCategorySelected(categoryId: String) {
-        val updatedCategories = _uiState.value.categories.map {
-            it.copy(isSelected = it.id == categoryId)
-        }
+        val updatedCategories = defaultCategories(selectedCategoryId = categoryId)
+        val filteredEvents = filterEvents(_uiState.value.allEvents, categoryId)
 
         _uiState.value = _uiState.value.copy(
             selectedCategoryId = categoryId,
-            categories = updatedCategories
+            categories = updatedCategories,
+            events = filteredEvents,
+            isEmpty = filteredEvents.isEmpty()
         )
     }
 
-    private fun defaultCategories(): List<HomeCategoryUi> {
+    private fun defaultCategories(selectedCategoryId: String): List<HomeCategoryUi> {
         return listOf(
+            HomeCategoryUi(
+                id = "all",
+                labelRes = R.string.category_all,
+                isSelected = selectedCategoryId == "all"
+            ),
             HomeCategoryUi(
                 id = "futbol",
                 labelRes = R.string.category_futbol,
-                isSelected = true
+                isSelected = selectedCategoryId == "futbol"
             ),
             HomeCategoryUi(
                 id = "tenis",
-                labelRes = R.string.category_tenis
+                labelRes = R.string.category_tenis,
+                isSelected = selectedCategoryId == "tenis"
             ),
             HomeCategoryUi(
                 id = "basket",
-                labelRes = R.string.category_basket
+                labelRes = R.string.category_basket,
+                isSelected = selectedCategoryId == "basket"
             ),
             HomeCategoryUi(
                 id = "social",
-                labelRes = R.string.category_social
+                labelRes = R.string.category_social,
+                isSelected = selectedCategoryId == "social"
             )
         )
+    }
+
+    private fun filterEvents(
+        events: List<HomeEventUi>,
+        categoryId: String
+    ): List<HomeEventUi> {
+        return when (categoryId) {
+            "all" -> events
+            "futbol" -> events.filter { it.sportType == EventSportType.Futbol }
+            "tenis" -> events.filter { it.sportType == EventSportType.Tenis }
+            "basket" -> events.filter { it.sportType == EventSportType.Basket }
+            "social" -> events.filter { it.sportType == EventSportType.Social }
+            else -> events
+        }
     }
 }
 
