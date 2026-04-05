@@ -5,5 +5,11 @@ data class ChatMessage(
     val userName: String,
     val message: String,
     val timestamp: String,
-    val isMine: Boolean
+    val isMine: Boolean,
+    val type: MessageType = MessageType.USER
 )
+
+enum class MessageType {
+    USER,
+    SYSTEM
+}
