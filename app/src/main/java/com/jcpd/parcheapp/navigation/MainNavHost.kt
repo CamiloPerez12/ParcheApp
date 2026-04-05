@@ -32,6 +32,7 @@ fun MainNavHost(
                 onNotificationClick = {
                 },
                 onSearchClick = {
+                    navController.navigate(Routes.SEARCH)
                 },
                 onFilterClick = {
                 },
@@ -80,6 +81,12 @@ fun MainNavHost(
 
         composable(Routes.MAP) {
             MapScreen(
+                onBack = { navController.popBackStack() }
+            )
+        }
+
+        composable(Routes.SEARCH) {
+            SearchScreen(
                 onBack = { navController.popBackStack() }
             )
         }
