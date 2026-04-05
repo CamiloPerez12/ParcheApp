@@ -5,9 +5,9 @@ import androidx.navigation.NavType
 import androidx.navigation.compose.*
 import androidx.navigation.navArgument
 import com.jcpd.feature_chat.presentation.chat.ChatScreen
-import com.jcpd.feature_home.presentation.detail.ProfileScreen
 import com.jcpd.feature_home.presentation.home.HomeScreen
 import com.jcpd.feature_event_detail.presentation.detail.EventDetailScreen
+import com.jcpd.feature_profile.presentation.profile.ProfileScreen
 
 @Composable
 fun MainNavHost(

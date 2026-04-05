@@ -74,4 +74,5 @@ dependencies {
     implementation(project(":feature:feature-home"))
     implementation(project(":feature:feature-event-detail"))
     implementation(project(":feature:feature-chat"))
+    implementation(project(":feature:feature-profile"))
 }

@@ -19,6 +19,7 @@
             <option value="$PROJECT_DIR$/feature/feature-event-detail" />
             <option value="$PROJECT_DIR$/feature/feature-home" />
             <option value="$PROJECT_DIR$/feature/feature-partido" />
+            <option value="$PROJECT_DIR$/feature/feature-profile" />
           </set>
         </option>
       </GradleProjectSettings>
