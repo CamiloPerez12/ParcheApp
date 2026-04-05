@@ -7,7 +7,7 @@ data class ChatUiState(
     val isSending: Boolean = false,
     val messages: List<ChatMessage> = emptyList(),
     val inputText: String = "",
-    val eventTitle: String = "Fútbol 5 en Galerías",
-    val eventSubtitle: String = "Hoy • 7:00 PM • Cancha El Parque",
+    val eventTitle: String = "",
+    val eventSubtitle: String = "",
     val errorMessage: String? = null
 )
