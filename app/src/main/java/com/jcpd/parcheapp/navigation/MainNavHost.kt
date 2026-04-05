@@ -30,6 +30,7 @@ fun MainNavHost(
                     navController.navigate(Routes.chat(eventId))
                 },
                 onNotificationClick = {
+                    navController.navigate(Routes.NOTIFICATIONS)
                 },
                 onSearchClick = {
                     navController.navigate(Routes.SEARCH)
@@ -94,6 +95,12 @@ fun MainNavHost(
 
         composable(Routes.FILTER) {
             FilterScreen(
+                onBack = { navController.popBackStack() }
+            )
+        }
+
+        composable(Routes.NOTIFICATIONS) {
+            NotificationsScreen(
                 onBack = { navController.popBackStack() }
             )
         }
