@@ -2,6 +2,8 @@ package com.jcpd.feature_home.presentation.home
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.jcpd.core_common.session.JoinedEventsRepository
+import com.jcpd.core_ui.components.EventCardState
 import com.jcpd.core_ui.components.EventSportType
 import com.jcpd.feature_home.R
 import com.jcpd.feature_home.domain.model.HomeEvent
@@ -13,25 +15,49 @@ import javax.inject.Inject
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
 
 @HiltViewModel
 class HomeViewModel @Inject constructor(
     private val getNearbyEventsUseCase: GetNearbyEventsUseCase,
     private val getHomeQuickStatsUseCase: GetHomeQuickStatsUseCase,
-    private val getSelectedLocationUseCase: GetSelectedLocationUseCase
+    private val getSelectedLocationUseCase: GetSelectedLocationUseCase,
+    private val joinedEventsRepository: JoinedEventsRepository
 ) : ViewModel() {
 
-    private val _uiState = MutableStateFlow(HomeUiState(isLoading = true))
-    val uiState: StateFlow<HomeUiState> = _uiState.asStateFlow()
+    private val _baseUiState = MutableStateFlow(HomeUiState(isLoading = true))
+    val uiState: StateFlow<HomeUiState> = _baseUiState.asStateFlow()
 
     init {
         loadHome()
+        observeJoinedEvents()
+    }
+
+    private fun observeJoinedEvents() {
+        viewModelScope.launch {
+            joinedEventsRepository.joinedEventIds.collect {
+                val current = _baseUiState.value
+                if (current.allEvents.isNotEmpty()) {
+                    val updatedAllEvents = current.allEvents.map { it.withJoinedState() }
+                    val filteredEvents = filterEvents(
+                        updatedAllEvents,
+                        current.selectedCategoryId ?: "all"
+                    )
+
+                    _baseUiState.value = current.copy(
+                        allEvents = updatedAllEvents,
+                        events = filteredEvents,
+                        isEmpty = filteredEvents.isEmpty()
+                    )
+                }
+            }
+        }
     }
 
     fun loadHome() {
         viewModelScope.launch {
-            _uiState.value = _uiState.value.copy(
+            _baseUiState.value = _baseUiState.value.copy(
                 isLoading = true,
                 errorMessageRes = null
             )
@@ -39,7 +65,9 @@ class HomeViewModel @Inject constructor(
             runCatching {
                 val location = getSelectedLocationUseCase()
                 val stats = getHomeQuickStatsUseCase()
-                val events = getNearbyEventsUseCase().map { it.toUi() }
+                val events = getNearbyEventsUseCase()
+                    .map { it.toUi() }
+                    .map { it.withJoinedState() }
 
                 val defaultSelectedCategory = "all"
                 val filteredEvents = filterEvents(events, defaultSelectedCategory)
@@ -69,9 +97,9 @@ class HomeViewModel @Inject constructor(
                     mapShortcutLabelRes = R.string.home_map_shortcut
                 )
             }.onSuccess { newState ->
-                _uiState.value = newState
+                _baseUiState.value = newState
             }.onFailure {
-                _uiState.value = _uiState.value.copy(
+                _baseUiState.value = _baseUiState.value.copy(
                     isLoading = false,
                     isRefreshing = false,
                     isEmpty = false,
@@ -83,25 +111,27 @@ class HomeViewModel @Inject constructor(
 
     fun refresh() {
         viewModelScope.launch {
-            _uiState.value = _uiState.value.copy(
+            _baseUiState.value = _baseUiState.value.copy(
                 isRefreshing = true,
                 errorMessageRes = null
             )
 
             runCatching {
-                getNearbyEventsUseCase().map { it.toUi() }
+                getNearbyEventsUseCase()
+                    .map { it.toUi() }
+                    .map { it.withJoinedState() }
             }.onSuccess { events ->
-                val selectedCategory = _uiState.value.selectedCategoryId ?: "all"
+                val selectedCategory = _baseUiState.value.selectedCategoryId ?: "all"
                 val filteredEvents = filterEvents(events, selectedCategory)
 
-                _uiState.value = _uiState.value.copy(
+                _baseUiState.value = _baseUiState.value.copy(
                     isRefreshing = false,
                     allEvents = events,
                     events = filteredEvents,
                     isEmpty = filteredEvents.isEmpty()
                 )
             }.onFailure {
-                _uiState.value = _uiState.value.copy(
+                _baseUiState.value = _baseUiState.value.copy(
                     isRefreshing = false,
                     errorMessageRes = R.string.home_error_refresh
                 )
@@ -111,9 +141,9 @@ class HomeViewModel @Inject constructor(
 
     fun onCategorySelected(categoryId: String) {
         val updatedCategories = defaultCategories(selectedCategoryId = categoryId)
-        val filteredEvents = filterEvents(_uiState.value.allEvents, categoryId)
+        val filteredEvents = filterEvents(_baseUiState.value.allEvents, categoryId)
 
-        _uiState.value = _uiState.value.copy(
+        _baseUiState.value = _baseUiState.value.copy(
             selectedCategoryId = categoryId,
             categories = updatedCategories,
             events = filteredEvents,
@@ -123,31 +153,11 @@ class HomeViewModel @Inject constructor(
 
     private fun defaultCategories(selectedCategoryId: String): List<HomeCategoryUi> {
         return listOf(
-            HomeCategoryUi(
-                id = "all",
-                labelRes = R.string.category_all,
-                isSelected = selectedCategoryId == "all"
-            ),
-            HomeCategoryUi(
-                id = "futbol",
-                labelRes = R.string.category_futbol,
-                isSelected = selectedCategoryId == "futbol"
-            ),
-            HomeCategoryUi(
-                id = "tenis",
-                labelRes = R.string.category_tenis,
-                isSelected = selectedCategoryId == "tenis"
-            ),
-            HomeCategoryUi(
-                id = "basket",
-                labelRes = R.string.category_basket,
-                isSelected = selectedCategoryId == "basket"
-            ),
-            HomeCategoryUi(
-                id = "social",
-                labelRes = R.string.category_social,
-                isSelected = selectedCategoryId == "social"
-            )
+            HomeCategoryUi("all", R.string.category_all, selectedCategoryId == "all"),
+            HomeCategoryUi("futbol", R.string.category_futbol, selectedCategoryId == "futbol"),
+            HomeCategoryUi("tenis", R.string.category_tenis, selectedCategoryId == "tenis"),
+            HomeCategoryUi("basket", R.string.category_basket, selectedCategoryId == "basket"),
+            HomeCategoryUi("social", R.string.category_social, selectedCategoryId == "social")
         )
     }
 
@@ -162,6 +172,14 @@ class HomeViewModel @Inject constructor(
             "basket" -> events.filter { it.sportType == EventSportType.Basket }
             "social" -> events.filter { it.sportType == EventSportType.Social }
             else -> events
+        }
+    }
+
+    private fun HomeEventUi.withJoinedState(): HomeEventUi {
+        return if (joinedEventsRepository.isJoined(id) && state != EventCardState.Full) {
+            copy(state = EventCardState.Joined)
+        } else {
+            this
         }
     }
 }

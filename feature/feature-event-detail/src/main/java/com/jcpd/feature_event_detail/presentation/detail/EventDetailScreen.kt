@@ -49,7 +49,8 @@ fun EventDetailScreen(
         modifier = modifier,
         onBack = onBack,
         onRetry = viewModel::loadEventDetail,
-        onOpenChat = onOpenChat
+        onOpenChat = onOpenChat,
+        onJoinConfirmed = viewModel::joinCurrentEvent
     )
 }
 
@@ -59,6 +60,7 @@ private fun EventDetailContent(
     onBack: () -> Unit,
     onRetry: () -> Unit,
     onOpenChat: () -> Unit,
+    onJoinConfirmed: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     val spacing = ParcheThemeTokens.spacing
@@ -207,6 +209,7 @@ private fun EventDetailContent(
                                 text = stringResource(R.string.event_join_dialog_confirm),
                                 onClick = {
                                     showJoinDialog = false
+                                    onJoinConfirmed()
                                     onOpenChat()
                                 },
                                 style = ParcheButtonStyle.Primary

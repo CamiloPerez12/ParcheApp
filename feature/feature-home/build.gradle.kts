@@ -50,6 +50,7 @@ dependencies {
     implementation(libs.material)
 
     implementation(project(":core:core-ui"))
+    implementation(project(":core:core-common"))
     implementation(project(":feature:feature-profile"))
 
     implementation(platform(libs.androidx.compose.bom))

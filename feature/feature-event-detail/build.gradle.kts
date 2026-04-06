@@ -34,6 +34,7 @@ kapt {
 
 dependencies {
     implementation(project(":core:core-ui"))
+    implementation(project(":core:core-common"))
 
     implementation(platform(libs.androidx.compose.bom))
     implementation(libs.androidx.compose.ui)

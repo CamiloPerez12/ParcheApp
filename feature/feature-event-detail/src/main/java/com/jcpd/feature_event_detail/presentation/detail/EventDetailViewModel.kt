@@ -3,6 +3,8 @@ package com.jcpd.feature_event_detail.presentation.detail
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.jcpd.core_common.session.JoinedEventsRepository
+import com.jcpd.core_ui.components.EventCardState
 import com.jcpd.feature_event_detail.R
 import com.jcpd.feature_event_detail.domain.model.EventDetail
 import com.jcpd.feature_event_detail.domain.usecase.GetEventDetailUseCase
@@ -16,6 +18,7 @@ import kotlinx.coroutines.launch
 @HiltViewModel
 class EventDetailViewModel @Inject constructor(
     private val getEventDetailUseCase: GetEventDetailUseCase,
+    private val joinedEventsRepository: JoinedEventsRepository,
     savedStateHandle: SavedStateHandle
 ) : ViewModel() {
 
@@ -26,6 +29,27 @@ class EventDetailViewModel @Inject constructor(
 
     init {
         loadEventDetail()
+        observeJoinedState()
+    }
+
+    private fun observeJoinedState() {
+        viewModelScope.launch {
+            joinedEventsRepository.joinedEventIds.collect {
+                val currentEvent = _uiState.value.eventDetail ?: return@collect
+                val updatedEvent = if (joinedEventsRepository.isJoined(currentEvent.id)
+                    && currentEvent.state != EventCardState.Full
+                ) {
+                    currentEvent.copy(state = EventCardState.Joined)
+                } else {
+                    currentEvent
+                }
+
+                _uiState.value = _uiState.value.copy(
+                    joinButtonTextRes = resolveJoinButtonText(updatedEvent.state),
+                    eventDetail = updatedEvent
+                )
+            }
+        }
     }
 
     fun loadEventDetail() {
@@ -36,7 +60,7 @@ class EventDetailViewModel @Inject constructor(
             )
 
             runCatching {
-                val detail = getEventDetailUseCase(eventId)
+                val detail = getEventDetailUseCase(eventId).toUi().withJoinedState()
 
                 EventDetailUiState(
                     isLoading = false,
@@ -49,7 +73,7 @@ class EventDetailViewModel @Inject constructor(
                     participantsSectionTitleRes = R.string.event_detail_participants_section,
                     locationSectionTitleRes = R.string.event_detail_location_section,
                     detailsSectionTitleRes = R.string.event_detail_details_section,
-                    eventDetail = detail.toUi()
+                    eventDetail = detail
                 )
             }.onSuccess { state ->
                 _uiState.value = state
@@ -71,12 +95,12 @@ class EventDetailViewModel @Inject constructor(
             )
 
             runCatching {
-                getEventDetailUseCase(eventId)
+                getEventDetailUseCase(eventId).toUi().withJoinedState()
             }.onSuccess { detail ->
                 _uiState.value = _uiState.value.copy(
                     isRefreshing = false,
                     joinButtonTextRes = resolveJoinButtonText(detail.state),
-                    eventDetail = detail.toUi()
+                    eventDetail = detail
                 )
             }.onFailure {
                 _uiState.value = _uiState.value.copy(
@@ -87,11 +111,25 @@ class EventDetailViewModel @Inject constructor(
         }
     }
 
-    private fun resolveJoinButtonText(state: com.jcpd.core_ui.components.EventCardState): Int {
+    fun joinCurrentEvent() {
+        viewModelScope.launch {
+            joinedEventsRepository.joinEvent(eventId)
+        }
+    }
+
+    private fun resolveJoinButtonText(state: EventCardState): Int {
         return when (state) {
-            com.jcpd.core_ui.components.EventCardState.Default -> R.string.event_detail_join
-            com.jcpd.core_ui.components.EventCardState.Joined -> R.string.event_detail_joined
-            com.jcpd.core_ui.components.EventCardState.Full -> R.string.event_detail_full
+            EventCardState.Default -> R.string.event_detail_join
+            EventCardState.Joined -> R.string.event_detail_open_chat
+            EventCardState.Full -> R.string.event_detail_full
+        }
+    }
+
+    private fun EventDetailUi.withJoinedState(): EventDetailUi {
+        return if (joinedEventsRepository.isJoined(id) && state != EventCardState.Full) {
+            copy(state = EventCardState.Joined)
+        } else {
+            this
         }
     }
 }

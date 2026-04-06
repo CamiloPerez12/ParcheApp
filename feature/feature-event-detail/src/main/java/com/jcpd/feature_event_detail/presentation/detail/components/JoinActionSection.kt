@@ -32,6 +32,7 @@ fun JoinActionSection(
         verticalArrangement = Arrangement.spacedBy(spacing.md)
     ) {
         when (state) {
+
             EventCardState.Default -> {
                 ParcheButton(
                     text = joinButtonText,
@@ -43,17 +44,9 @@ fun JoinActionSection(
 
             EventCardState.Joined -> {
                 ParcheButton(
-                    text = joinButtonText,
-                    onClick = {},
-                    enabled = false,
-                    style = ParcheButtonStyle.Secondary,
-                    modifier = Modifier.fillMaxWidth()
-                )
-
-                ParcheButton(
                     text = openChatButtonText,
                     onClick = onOpenChatClick,
-                    style = ParcheButtonStyle.Outline,
+                    style = ParcheButtonStyle.Primary,
                     modifier = Modifier.fillMaxWidth()
                 )
             }
@@ -63,7 +56,7 @@ fun JoinActionSection(
                     text = joinButtonText,
                     onClick = {},
                     enabled = false,
-                    style = ParcheButtonStyle.Outline,
+                    style = ParcheButtonStyle.Secondary,
                     modifier = Modifier.fillMaxWidth()
                 )
             }
