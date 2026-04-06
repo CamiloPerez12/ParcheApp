@@ -5,13 +5,15 @@
     <string name="event_detail_joined">Joined</string>
     <string name="event_detail_full">Full</string>
     <string name="event_detail_open_chat">Open chat</string>
-
     <string name="event_detail_organizer_section">Organizer</string>
     <string name="event_detail_participants_section">Participants</string>
     <string name="event_detail_location_section">Location</string>
     <string name="event_detail_details_section">Details</string>
-
     <string name="event_detail_error_generic">Something went wrong</string>
     <string name="event_detail_error_refresh">Could not refresh event detail</string>
     <string name="event_detail_retry">Retry</string>
+    <string name="event_join_dialog_title">Join event</string>
+    <string name="event_join_dialog_message">You are going to join %1$s. Are you sure?</string>
+    <string name="event_join_dialog_confirm">Join</string>
+    <string name="event_join_dialog_cancel">Cancel</string>
 </resources>

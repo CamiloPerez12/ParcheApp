@@ -5,13 +5,15 @@
     <string name="event_detail_joined">Ya te uniste</string>
     <string name="event_detail_full">Completo</string>
     <string name="event_detail_open_chat">Abrir chat</string>
-
     <string name="event_detail_organizer_section">Organizador</string>
     <string name="event_detail_participants_section">Participantes</string>
     <string name="event_detail_location_section">Ubicación</string>
     <string name="event_detail_details_section">Detalles</string>
-
     <string name="event_detail_error_generic">Ocurrió un error inesperado</string>
     <string name="event_detail_error_refresh">No se pudo actualizar el detalle del evento</string>
     <string name="event_detail_retry">Reintentar</string>
+    <string name="event_join_dialog_title">Unirse al evento</string>
+    <string name="event_join_dialog_message">Vas a unirte a %1$s. ¿Estás seguro?</string>
+    <string name="event_join_dialog_confirm">Unirse</string>
+    <string name="event_join_dialog_cancel">Cancelar</string>
 </resources>

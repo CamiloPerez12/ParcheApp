@@ -9,11 +9,15 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
@@ -58,6 +62,7 @@ private fun EventDetailContent(
     modifier: Modifier = Modifier
 ) {
     val spacing = ParcheThemeTokens.spacing
+    var showJoinDialog by remember { mutableStateOf(false) }
 
     when {
         uiState.isLoading -> {
@@ -173,9 +178,51 @@ private fun EventDetailContent(
                         ?.let { stringResource(it) }
                         .orEmpty(),
                     state = event.state,
-                    onJoinClick = onOpenChat,
+                    onJoinClick = {
+                        showJoinDialog = true
+                    },
                     onOpenChatClick = onOpenChat
                 )
+
+                if (showJoinDialog) {
+                    AlertDialog(
+                        onDismissRequest = {
+                            showJoinDialog = false
+                        },
+                        title = {
+                            Text(
+                                text = stringResource(R.string.event_join_dialog_title)
+                            )
+                        },
+                        text = {
+                            Text(
+                                text = stringResource(
+                                    R.string.event_join_dialog_message,
+                                    event.title
+                                )
+                            )
+                        },
+                        confirmButton = {
+                            ParcheButton(
+                                text = stringResource(R.string.event_join_dialog_confirm),
+                                onClick = {
+                                    showJoinDialog = false
+                                    onOpenChat()
+                                },
+                                style = ParcheButtonStyle.Primary
+                            )
+                        },
+                        dismissButton = {
+                            ParcheButton(
+                                text = stringResource(R.string.event_join_dialog_cancel),
+                                onClick = {
+                                    showJoinDialog = false
+                                },
+                                style = ParcheButtonStyle.Secondary
+                            )
+                        }
+                    )
+                }
             }
         }
     }
