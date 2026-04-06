@@ -176,11 +176,12 @@ class HomeViewModel @Inject constructor(
     }
 
     private fun HomeEventUi.withJoinedState(): HomeEventUi {
-        return if (joinedEventsRepository.isJoined(id) && state != EventCardState.Full) {
-            copy(state = EventCardState.Joined)
-        } else {
-            this
+        val resolvedState = when {
+            state == EventCardState.Full -> EventCardState.Full
+            joinedEventsRepository.isJoined(id) -> EventCardState.Joined
+            else -> EventCardState.Default
         }
+        return copy(state = resolvedState)
     }
 }
 

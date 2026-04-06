@@ -46,7 +46,7 @@ class FakeHomeRepository : HomeRepository {
                 statusType = ParcheStatusBadgeType.Later,
                 rating = 4.6,
                 remainingSpots = 2,
-                state = EventCardState.Joined,
+                state = EventCardState.Default,
                 sportType = EventSportType.Tenis,
                 participantInitials = listOf("LR", "MA")
             ),

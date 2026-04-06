@@ -36,13 +36,7 @@ class EventDetailViewModel @Inject constructor(
         viewModelScope.launch {
             joinedEventsRepository.joinedEventIds.collect {
                 val currentEvent = _uiState.value.eventDetail ?: return@collect
-                val updatedEvent = if (joinedEventsRepository.isJoined(currentEvent.id)
-                    && currentEvent.state != EventCardState.Full
-                ) {
-                    currentEvent.copy(state = EventCardState.Joined)
-                } else {
-                    currentEvent
-                }
+                val updatedEvent = currentEvent.withJoinedState()
 
                 _uiState.value = _uiState.value.copy(
                     joinButtonTextRes = resolveJoinButtonText(updatedEvent.state),
@@ -126,11 +120,12 @@ class EventDetailViewModel @Inject constructor(
     }
 
     private fun EventDetailUi.withJoinedState(): EventDetailUi {
-        return if (joinedEventsRepository.isJoined(id) && state != EventCardState.Full) {
-            copy(state = EventCardState.Joined)
-        } else {
-            this
+        val resolvedState = when {
+            state == EventCardState.Full -> EventCardState.Full
+            joinedEventsRepository.isJoined(id) -> EventCardState.Joined
+            else -> EventCardState.Default
         }
+        return copy(state = resolvedState)
     }
 
     fun leaveCurrentEvent() {
