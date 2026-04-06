@@ -7,4 +7,5 @@ interface JoinedEventsRepository {
 
     fun isJoined(eventId: String): Boolean
     suspend fun joinEvent(eventId: String)
+    suspend fun leaveEvent(eventId: String)
 }

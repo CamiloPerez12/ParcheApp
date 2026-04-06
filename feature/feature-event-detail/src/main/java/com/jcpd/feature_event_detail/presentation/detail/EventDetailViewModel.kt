@@ -132,6 +132,12 @@ class EventDetailViewModel @Inject constructor(
             this
         }
     }
+
+    fun leaveCurrentEvent() {
+        viewModelScope.launch {
+            joinedEventsRepository.leaveEvent(eventId)
+        }
+    }
 }
 
 private fun EventDetail.toUi(): EventDetailUi {

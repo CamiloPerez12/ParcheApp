@@ -16,4 +16,9 @@
     <string name="event_join_dialog_message">Vas a unirte a %1$s. ¿Estás seguro?</string>
     <string name="event_join_dialog_confirm">Unirse</string>
     <string name="event_join_dialog_cancel">Cancelar</string>
+    <string name="event_leave">Salir del evento</string>
+    <string name="event_leave_dialog_title">Salir del evento</string>
+    <string name="event_leave_dialog_message">Vas a salir de %1$s. ¿Es correcto?</string>
+    <string name="event_leave_dialog_confirm">Salir</string>
+    <string name="event_leave_dialog_cancel">Cancelar</string>
 </resources>

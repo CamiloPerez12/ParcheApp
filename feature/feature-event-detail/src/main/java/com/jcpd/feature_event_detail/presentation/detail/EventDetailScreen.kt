@@ -50,7 +50,8 @@ fun EventDetailScreen(
         onBack = onBack,
         onRetry = viewModel::loadEventDetail,
         onOpenChat = onOpenChat,
-        onJoinConfirmed = viewModel::joinCurrentEvent
+        onJoinConfirmed = viewModel::joinCurrentEvent,
+        onLeaveConfirmed = viewModel::leaveCurrentEvent
     )
 }
 
@@ -61,10 +62,12 @@ private fun EventDetailContent(
     onRetry: () -> Unit,
     onOpenChat: () -> Unit,
     onJoinConfirmed: () -> Unit,
+    onLeaveConfirmed: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     val spacing = ParcheThemeTokens.spacing
     var showJoinDialog by remember { mutableStateOf(false) }
+    var showLeaveDialog by remember { mutableStateOf(false) }
 
     when {
         uiState.isLoading -> {
@@ -119,7 +122,7 @@ private fun EventDetailContent(
                         start = spacing.lg,
                         end = spacing.lg,
                         top = spacing.lg,
-                        bottom = spacing.huge + spacing.xxl
+                        bottom = spacing.huge + spacing.xxl + spacing.xxxl
                     )
                 ) {
                     item {
@@ -179,11 +182,15 @@ private fun EventDetailContent(
                     openChatButtonText = uiState.openChatButtonTextRes
                         ?.let { stringResource(it) }
                         .orEmpty(),
+                    leaveButtonText = stringResource(R.string.event_leave),
                     state = event.state,
                     onJoinClick = {
                         showJoinDialog = true
                     },
-                    onOpenChatClick = onOpenChat
+                    onOpenChatClick = onOpenChat,
+                    onLeaveClick = {
+                        showLeaveDialog = true
+                    }
                 )
 
                 if (showJoinDialog) {
@@ -220,6 +227,46 @@ private fun EventDetailContent(
                                 text = stringResource(R.string.event_join_dialog_cancel),
                                 onClick = {
                                     showJoinDialog = false
+                                },
+                                style = ParcheButtonStyle.Secondary
+                            )
+                        }
+                    )
+                }
+
+                if (showLeaveDialog) {
+                    AlertDialog(
+                        onDismissRequest = {
+                            showLeaveDialog = false
+                        },
+                        title = {
+                            Text(
+                                text = stringResource(R.string.event_leave_dialog_title)
+                            )
+                        },
+                        text = {
+                            Text(
+                                text = stringResource(
+                                    R.string.event_leave_dialog_message,
+                                    event.title
+                                )
+                            )
+                        },
+                        confirmButton = {
+                            ParcheButton(
+                                text = stringResource(R.string.event_leave_dialog_confirm),
+                                onClick = {
+                                    showLeaveDialog = false
+                                    onLeaveConfirmed()
+                                },
+                                style = ParcheButtonStyle.Primary
+                            )
+                        },
+                        dismissButton = {
+                            ParcheButton(
+                                text = stringResource(R.string.event_leave_dialog_cancel),
+                                onClick = {
+                                    showLeaveDialog = false
                                 },
                                 style = ParcheButtonStyle.Secondary
                             )

@@ -16,4 +16,8 @@ class InMemoryJoinedEventsRepository : JoinedEventsRepository {
     override suspend fun joinEvent(eventId: String) {
         _joinedEventIds.value = _joinedEventIds.value + eventId
     }
+
+    override suspend fun leaveEvent(eventId: String) {
+        _joinedEventIds.value = _joinedEventIds.value - eventId
+    }
 }

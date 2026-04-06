@@ -17,9 +17,11 @@ import com.jcpd.core_ui.theme.ParcheWhite
 fun JoinActionSection(
     joinButtonText: String,
     openChatButtonText: String,
+    leaveButtonText: String,
     state: EventCardState,
     onJoinClick: () -> Unit,
     onOpenChatClick: () -> Unit,
+    onLeaveClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     val spacing = ParcheThemeTokens.spacing
@@ -32,7 +34,6 @@ fun JoinActionSection(
         verticalArrangement = Arrangement.spacedBy(spacing.md)
     ) {
         when (state) {
-
             EventCardState.Default -> {
                 ParcheButton(
                     text = joinButtonText,
@@ -47,6 +48,13 @@ fun JoinActionSection(
                     text = openChatButtonText,
                     onClick = onOpenChatClick,
                     style = ParcheButtonStyle.Primary,
+                    modifier = Modifier.fillMaxWidth()
+                )
+
+                ParcheButton(
+                    text = leaveButtonText,
+                    onClick = onLeaveClick,
+                    style = ParcheButtonStyle.Secondary,
                     modifier = Modifier.fillMaxWidth()
                 )
             }

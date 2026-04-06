@@ -16,4 +16,9 @@
     <string name="event_join_dialog_message">You are going to join %1$s. Are you sure?</string>
     <string name="event_join_dialog_confirm">Join</string>
     <string name="event_join_dialog_cancel">Cancel</string>
+    <string name="event_leave">Leave event</string>
+    <string name="event_leave_dialog_title">Leave event</string>
+    <string name="event_leave_dialog_message">You are leaving %1$s. Is that correct?</string>
+    <string name="event_leave_dialog_confirm">Leave</string>
+    <string name="event_leave_dialog_cancel">Cancel</string>
 </resources>
