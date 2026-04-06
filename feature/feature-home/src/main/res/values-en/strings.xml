@@ -24,8 +24,4 @@
     <string name="home_empty_subtitle">Try another filter or check the map.</string>
     <string name="home_nearby_events_title">Nearby matches</string>
     <string name="category_all">All</string>
-    <string name="home_join_dialog_title">Join event</string>
-    <string name="home_join_dialog_message">You are going to join %1$s. Are you sure?</string>
-    <string name="home_join_dialog_confirm">Join</string>
-    <string name="home_join_dialog_cancel">Cancel</string>
 </resources>

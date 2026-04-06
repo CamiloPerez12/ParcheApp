@@ -24,8 +24,4 @@
     <string name="home_empty_subtitle">Prueba otro filtro o revisa el mapa.</string>
     <string name="home_nearby_events_title">Partidos cerca</string>
     <string name="category_all">Todos</string>
-    <string name="home_join_dialog_title">Unirse al evento</string>
-    <string name="home_join_dialog_message">Vas a unirte a %1$s. ¿Estás seguro?</string>
-    <string name="home_join_dialog_confirm">Unirse</string>
-    <string name="home_join_dialog_cancel">Cancelar</string>
 </resources>

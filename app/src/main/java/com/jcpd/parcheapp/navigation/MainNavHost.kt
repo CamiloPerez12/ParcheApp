@@ -27,10 +27,13 @@ fun MainNavHost(
                     navController.navigate(Routes.eventDetail(eventId))
                 },
                 onJoinClick = { eventId ->
-                    navController.navigate(Routes.chat(eventId))
+                    navController.navigate(Routes.eventDetail(eventId))
                 },
                 onNotificationClick = {
                     navController.navigate(Routes.NOTIFICATIONS)
+                },
+                onProfileClick = {
+                    navController.navigate(Routes.PROFILE)
                 },
                 onSearchClick = {
                     navController.navigate(Routes.SEARCH)
@@ -40,9 +43,6 @@ fun MainNavHost(
                 },
                 onMapClick = {
                     navController.navigate(Routes.MAP)
-                },
-                onProfileClick = {
-                    navController.navigate(Routes.PROFILE)
                 }
             )
         }
@@ -69,8 +69,8 @@ fun MainNavHost(
             arguments = listOf(
                 navArgument("eventId") { type = NavType.StringType }
             )
-        ) {
-            val eventId = it.arguments?.getString("eventId").orEmpty()
+        ) { backStackEntry ->
+            val eventId = backStackEntry.arguments?.getString("eventId").orEmpty()
 
             ChatScreen(
                 eventId = eventId,
