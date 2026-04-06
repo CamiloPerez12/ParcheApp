@@ -15,4 +15,10 @@ object SessionModule {
     fun provideJoinedEventsRepository(): JoinedEventsRepository {
         return InMemoryJoinedEventsRepository()
     }
+
+    @Provides
+    @Singleton
+    fun provideUserSessionRepository(): UserSessionRepository {
+        return FakeUserSessionRepository()
+    }
 }

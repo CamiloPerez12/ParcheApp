@@ -4,6 +4,8 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.jcpd.core_common.session.JoinedEventsRepository
+import com.jcpd.core_common.session.SessionUser
+import com.jcpd.core_common.session.UserSessionRepository
 import com.jcpd.core_ui.components.EventCardState
 import com.jcpd.feature_event_detail.R
 import com.jcpd.feature_event_detail.domain.model.EventDetail
@@ -19,6 +21,7 @@ import kotlinx.coroutines.launch
 class EventDetailViewModel @Inject constructor(
     private val getEventDetailUseCase: GetEventDetailUseCase,
     private val joinedEventsRepository: JoinedEventsRepository,
+    private val userSessionRepository: UserSessionRepository,
     savedStateHandle: SavedStateHandle
 ) : ViewModel() {
 
@@ -26,6 +29,8 @@ class EventDetailViewModel @Inject constructor(
 
     private val _uiState = MutableStateFlow(EventDetailUiState(isLoading = true))
     val uiState: StateFlow<EventDetailUiState> = _uiState.asStateFlow()
+
+    private var baseEventDetail: EventDetail? = null
 
     init {
         loadEventDetail()
@@ -35,12 +40,12 @@ class EventDetailViewModel @Inject constructor(
     private fun observeJoinedState() {
         viewModelScope.launch {
             joinedEventsRepository.joinedEventIds.collect {
-                val currentEvent = _uiState.value.eventDetail ?: return@collect
-                val updatedEvent = currentEvent.withJoinedState()
+                val baseEvent = baseEventDetail ?: return@collect
+                val updatedDetail = baseEvent.toUi().resolveDynamicState()
 
                 _uiState.value = _uiState.value.copy(
-                    joinButtonTextRes = resolveJoinButtonText(updatedEvent.state),
-                    eventDetail = updatedEvent
+                    joinButtonTextRes = resolveJoinButtonText(updatedDetail.state),
+                    eventDetail = updatedDetail
                 )
             }
         }
@@ -54,20 +59,23 @@ class EventDetailViewModel @Inject constructor(
             )
 
             runCatching {
-                val detail = getEventDetailUseCase(eventId).toUi().withJoinedState()
+                val detail = getEventDetailUseCase(eventId)
+                baseEventDetail = detail
+
+                val uiDetail = detail.toUi().resolveDynamicState()
 
                 EventDetailUiState(
                     isLoading = false,
                     isRefreshing = false,
                     errorMessageRes = null,
                     titleRes = R.string.event_detail_title,
-                    joinButtonTextRes = resolveJoinButtonText(detail.state),
+                    joinButtonTextRes = resolveJoinButtonText(uiDetail.state),
                     openChatButtonTextRes = R.string.event_detail_open_chat,
                     organizerSectionTitleRes = R.string.event_detail_organizer_section,
                     participantsSectionTitleRes = R.string.event_detail_participants_section,
                     locationSectionTitleRes = R.string.event_detail_location_section,
                     detailsSectionTitleRes = R.string.event_detail_details_section,
-                    eventDetail = detail
+                    eventDetail = uiDetail
                 )
             }.onSuccess { state ->
                 _uiState.value = state
@@ -89,7 +97,9 @@ class EventDetailViewModel @Inject constructor(
             )
 
             runCatching {
-                getEventDetailUseCase(eventId).toUi().withJoinedState()
+                val detail = getEventDetailUseCase(eventId)
+                baseEventDetail = detail
+                detail.toUi().resolveDynamicState()
             }.onSuccess { detail ->
                 _uiState.value = _uiState.value.copy(
                     isRefreshing = false,
@@ -111,6 +121,12 @@ class EventDetailViewModel @Inject constructor(
         }
     }
 
+    fun leaveCurrentEvent() {
+        viewModelScope.launch {
+            joinedEventsRepository.leaveEvent(eventId)
+        }
+    }
+
     private fun resolveJoinButtonText(state: EventCardState): Int {
         return when (state) {
             EventCardState.Default -> R.string.event_detail_join
@@ -119,19 +135,64 @@ class EventDetailViewModel @Inject constructor(
         }
     }
 
-    private fun EventDetailUi.withJoinedState(): EventDetailUi {
-        val resolvedState = when {
-            state == EventCardState.Full -> EventCardState.Full
-            joinedEventsRepository.isJoined(id) -> EventCardState.Joined
+    private fun EventDetailUi.resolveDynamicState(): EventDetailUi {
+        val currentUser = userSessionRepository.currentUser.value
+        val isJoined = joinedEventsRepository.isJoined(id)
+
+        val updatedParticipants = buildParticipants(
+            baseParticipants = participants,
+            organizerId = organizer.id,
+            isJoined = isJoined,
+            currentUser = currentUser
+        )
+
+        val updatedJoinedPlayers = updatedParticipants.size
+        val updatedRemainingSpots = (totalPlayers - updatedJoinedPlayers).coerceAtLeast(0)
+
+        val finalState = when {
+            updatedRemainingSpots == 0 && !isJoined -> EventCardState.Full
+            isJoined -> EventCardState.Joined
             else -> EventCardState.Default
         }
-        return copy(state = resolvedState)
+
+        return copy(
+            state = finalState,
+            participants = updatedParticipants,
+            joinedPlayers = updatedJoinedPlayers,
+            remainingSpots = updatedRemainingSpots
+        )
     }
 
-    fun leaveCurrentEvent() {
-        viewModelScope.launch {
-            joinedEventsRepository.leaveEvent(eventId)
+    private fun buildParticipants(
+        baseParticipants: List<ParticipantUi>,
+        organizerId: String,
+        isJoined: Boolean,
+        currentUser: SessionUser
+    ): List<ParticipantUi> {
+        val alreadyIncluded = baseParticipants.any { it.id == currentUser.id }
+
+        val currentUserParticipant = ParticipantUi(
+            id = currentUser.id,
+            name = currentUser.name,
+            initials = currentUser.name.toInitials(),
+            rating = currentUser.rating,
+            isVerified = currentUser.isVerified,
+            isOrganizer = currentUser.id == organizerId
+        )
+
+        return when {
+            isJoined && !alreadyIncluded -> listOf(currentUserParticipant) + baseParticipants
+            !isJoined -> baseParticipants.filterNot { it.id == currentUser.id }
+            else -> baseParticipants
         }
+    }
+
+    private fun String.toInitials(): String {
+        return trim()
+            .split("\\s+".toRegex())
+            .filter { it.isNotBlank() }
+            .take(2)
+            .joinToString("") { it.first().uppercase() }
     }
 }
 

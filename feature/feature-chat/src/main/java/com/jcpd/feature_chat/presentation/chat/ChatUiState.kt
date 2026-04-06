@@ -9,5 +9,6 @@ data class ChatUiState(
     val inputText: String = "",
     val eventTitle: String = "",
     val eventSubtitle: String = "",
-    val errorMessage: String? = null
+    val errorMessage: String? = null,
+    val hasAccess: Boolean = false,
 )

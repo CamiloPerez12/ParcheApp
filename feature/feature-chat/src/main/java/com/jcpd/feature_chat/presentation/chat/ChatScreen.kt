@@ -23,6 +23,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.jcpd.core_ui.components.ParcheButton
+import com.jcpd.core_ui.components.ParcheButtonStyle
 import com.jcpd.core_ui.theme.ParcheChatBackground
 import com.jcpd.core_ui.theme.ParcheThemeTokens
 import com.jcpd.core_ui.theme.TextMuted
@@ -43,8 +45,8 @@ fun ChatScreen(
     val listState = rememberLazyListState()
     val spacing = ParcheThemeTokens.spacing
 
-    LaunchedEffect(uiState.messages.size) {
-        if (uiState.messages.isNotEmpty()) {
+    LaunchedEffect(uiState.messages.size, uiState.hasAccess) {
+        if (uiState.hasAccess && uiState.messages.isNotEmpty()) {
             listState.animateScrollToItem(uiState.messages.lastIndex)
         }
     }
@@ -58,6 +60,26 @@ fun ChatScreen(
                 contentAlignment = Alignment.Center
             ) {
                 CircularProgressIndicator()
+            }
+        }
+
+        !uiState.hasAccess -> {
+            Column(
+                modifier = modifier
+                    .fillMaxSize()
+                    .background(ParcheChatBackground)
+            ) {
+                ChatHeader(
+                    title = stringResource(R.string.chat_title),
+                    onBack = onBack
+                )
+
+                NoChatAccessContent(
+                    eventTitle = uiState.eventTitle,
+                    eventSubtitle = uiState.eventSubtitle,
+                    onBackToEvent = onBack,
+                    modifier = Modifier.weight(1f)
+                )
             }
         }
 
@@ -127,6 +149,54 @@ fun ChatScreen(
                         )
                 )
             }
+        }
+    }
+}
+
+@Composable
+private fun NoChatAccessContent(
+    eventTitle: String,
+    eventSubtitle: String,
+    onBackToEvent: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    val spacing = ParcheThemeTokens.spacing
+
+    Box(
+        modifier = modifier
+            .fillMaxSize()
+            .padding(horizontal = spacing.xl),
+        contentAlignment = Alignment.Center
+    ) {
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.spacedBy(spacing.md)
+        ) {
+            Text(
+                text = "Join this event to access the chat",
+                style = MaterialTheme.typography.headlineSmall
+            )
+
+            if (eventTitle.isNotBlank()) {
+                Text(
+                    text = eventTitle,
+                    style = MaterialTheme.typography.titleMedium
+                )
+            }
+
+            if (eventSubtitle.isNotBlank()) {
+                Text(
+                    text = eventSubtitle,
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = TextMuted
+                )
+            }
+
+            ParcheButton(
+                text = "Back to event",
+                onClick = onBackToEvent,
+                style = ParcheButtonStyle.Primary
+            )
         }
     }
 }
