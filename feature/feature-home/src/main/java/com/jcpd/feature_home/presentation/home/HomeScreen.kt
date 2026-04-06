@@ -44,6 +44,7 @@ fun HomeScreen(
     modifier: Modifier = Modifier,
     viewModel: HomeViewModel = hiltViewModel(),
     onNotificationClick: () -> Unit = {},
+    onProfileClick: () -> Unit = {},
     onSearchClick: () -> Unit = {},
     onFilterClick: () -> Unit = {},
     onMapClick: () -> Unit = {},
@@ -57,6 +58,7 @@ fun HomeScreen(
         modifier = modifier,
         onRetry = viewModel::loadHome,
         onNotificationClick = onNotificationClick,
+        onProfileClick = onProfileClick,
         onSearchClick = onSearchClick,
         onFilterClick = onFilterClick,
         onMapClick = onMapClick,
@@ -72,6 +74,7 @@ private fun HomeScreenContent(
     modifier: Modifier = Modifier,
     onRetry: () -> Unit,
     onNotificationClick: () -> Unit,
+    onProfileClick: () -> Unit,
     onSearchClick: () -> Unit,
     onFilterClick: () -> Unit,
     onMapClick: () -> Unit,
@@ -144,6 +147,7 @@ private fun HomeScreenContent(
                         locationLabel = uiState.locationLabel,
                         unreadNotificationsCount = uiState.unreadNotificationsCount,
                         onNotificationClick = onNotificationClick,
+                        onProfileClick = onProfileClick,
                         notificationIcon = Icons.Outlined.Notifications
                     )
                 }

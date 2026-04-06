@@ -22,6 +22,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
+import com.jcpd.core_ui.components.ParcheAvatar
+import com.jcpd.core_ui.components.ParcheAvatarSize
 import com.jcpd.core_ui.theme.ParcheGradients
 import com.jcpd.core_ui.theme.ParcheThemeTokens
 import com.jcpd.core_ui.theme.ParcheWhite
@@ -34,6 +36,7 @@ fun HomeHeroSection(
     unreadNotificationsCount: Int,
     notificationIcon: ImageVector,
     onNotificationClick: () -> Unit,
+    onProfileClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     val spacing = ParcheThemeTokens.spacing
@@ -43,7 +46,10 @@ fun HomeHeroSection(
             .fillMaxWidth()
             .background(
                 brush = ParcheGradients.BrandHero,
-                shape = RoundedCornerShape(bottomStart = spacing.xxxl, bottomEnd = spacing.xxxl)
+                shape = RoundedCornerShape(
+                    bottomStart = spacing.xxxl,
+                    bottomEnd = spacing.xxxl
+                )
             )
             .windowInsetsPadding(WindowInsets.statusBars)
             .padding(horizontal = spacing.lg, vertical = spacing.xl),
@@ -69,29 +75,47 @@ fun HomeHeroSection(
                 )
             }
 
-            Box {
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(spacing.sm),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Box {
+                    IconButton(
+                        onClick = onNotificationClick,
+                        modifier = Modifier.background(
+                            color = ParcheWhite.copy(alpha = 0.18f),
+                            shape = CircleShape
+                        )
+                    ) {
+                        Icon(
+                            imageVector = notificationIcon,
+                            contentDescription = null,
+                            tint = ParcheWhite
+                        )
+                    }
+
+                    if (unreadNotificationsCount > 0) {
+                        Badge(
+                            modifier = Modifier.align(Alignment.TopEnd)
+                        ) {
+                            Text(
+                                text = unreadNotificationsCount.coerceAtMost(99).toString()
+                            )
+                        }
+                    }
+                }
+
                 IconButton(
-                    onClick = onNotificationClick,
+                    onClick = onProfileClick,
                     modifier = Modifier.background(
                         color = ParcheWhite.copy(alpha = 0.18f),
                         shape = CircleShape
                     )
                 ) {
-                    Icon(
-                        imageVector = notificationIcon,
-                        contentDescription = null,
-                        tint = ParcheWhite
+                    ParcheAvatar(
+                        initials = "CP",
+                        size = ParcheAvatarSize.Small
                     )
-                }
-
-                if (unreadNotificationsCount > 0) {
-                    Badge(
-                        modifier = Modifier.align(Alignment.TopEnd)
-                    ) {
-                        Text(
-                            text = unreadNotificationsCount.coerceAtMost(99).toString()
-                        )
-                    }
                 }
             }
         }

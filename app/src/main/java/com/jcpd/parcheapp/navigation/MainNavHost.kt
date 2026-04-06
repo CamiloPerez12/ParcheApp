@@ -40,6 +40,9 @@ fun MainNavHost(
                 },
                 onMapClick = {
                     navController.navigate(Routes.MAP)
+                },
+                onProfileClick = {
+                    navController.navigate(Routes.PROFILE)
                 }
             )
         }
